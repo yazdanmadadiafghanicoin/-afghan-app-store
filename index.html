@@ -1,0 +1,287 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>Afghan App Store | فروشگاه جهانی اپلیکیشن</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#0b1220;color:#f4f7fb;font-family:Tahoma,Arial,sans-serif}
+    header{background:#111c30;padding:18px 5%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid #26344b}
+    .brand{font-size:23px;font-weight:bold;color:#58d6a5}
+    button{border:0;border-radius:9px;padding:11px 16px;background:#20b981;color:#071b16;font-weight:bold;cursor:pointer}
+    button.secondary{background:#263750;color:white}
+    main{max-width:1150px;margin:auto;padding:22px}
+    .hero{padding:35px 22px;border-radius:18px;background:linear-gradient(120deg,#173b50,#17233e);margin-bottom:22px}
+    .hero h1{font-size:30px;margin:0 0 12px}
+    .hero p{color:#c4d3e5;line-height:2}
+    input,select,textarea{width:100%;padding:13px;border-radius:9px;border:1px solid #34435c;background:#101b2e;color:white;margin:7px 0;font:inherit}
+    .search{max-width:600px}
+    .categories{display:flex;gap:8px;overflow:auto;margin:20px 0}
+    .categories button{white-space:nowrap}
+    .categories button.active{background:#f5bd4e}
+    .section-title{display:flex;justify-content:space-between;align-items:center;margin:22px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:15px}
+    .app{background:#142138;border:1px solid #263852;border-radius:14px;padding:15px}
+    .app-icon{width:65px;height:65px;border-radius:15px;background:#233b56;display:grid;place-items:center;font-size:30px;margin-bottom:12px}
+    .app h3{margin:5px 0}
+    .muted{color:#a9bad0;font-size:13px;line-height:1.8}
+    .price{color:#58d6a5;font-weight:bold;margin:12px 0}
+    .app button{width:100%}
+    .panel{background:#142138;border:1px solid #263852;border-radius:14px;padding:18px;margin:20px 0}
+    .hidden{display:none!important}
+    .modal{position:fixed;inset:0;background:#000b;display:grid;place-items:center;padding:15px;z-index:10}
+    .modal-content{background:#142138;border:1px solid #34435c;border-radius:16px;padding:22px;width:min(440px,100%);max-height:90vh;overflow:auto}
+    .modal-content h2{margin-top:0}
+    .close{float:left;background:#35445c;color:white}
+    .message{padding:12px;border-radius:9px;background:#203b43;color:#8ff2c4;margin:10px 0;line-height:1.8}
+    footer{text-align:center;padding:30px;color:#8fa3bb}
+    a{color:#58d6a5}
+    @media(max-width:600px){.hero h1{font-size:24px}header{padding:15px}.brand{font-size:19px}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand">🌍 Afghan App Store</div>
+  <div>
+    <button class="secondary" onclick="openModal('authModal')">ورود / ثبت‌نام</button>
+    <button onclick="showDeveloper()">انتشار برنامه</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>دنیای اپلیکیشن‌ها در یک فروشگاه</h1>
+    <p>برنامه‌های اندروید را جست‌وجو، کشف و دانلود کنید. توسعه‌دهندگان از سراسر جهان می‌توانند برنامه‌های خود را منتشر کنند.</p>
+    <input class="search" id="search" placeholder="نام برنامه یا دسته‌بندی را جست‌وجو کنید..." oninput="loadApps()">
+  </section>
+
+  <div class="categories" id="categories">
+    <button class="active" onclick="setCategory('')">همه برنامه‌ها</button>
+    <button class="secondary" onclick="setCategory('Education')">آموزش</button>
+    <button class="secondary" onclick="setCategory('Games')">بازی</button>
+    <button class="secondary" onclick="setCategory('Business')">تجارت</button>
+    <button class="secondary" onclick="setCategory('Social')">اجتماعی</button>
+    <button class="secondary" onclick="setCategory('Tools')">ابزارها</button>
+    <button class="secondary" onclick="setCategory('Finance')">مالی</button>
+  </div>
+
+  <div class="section-title">
+    <h2>برنامه‌های فروشگاه</h2>
+    <span class="muted" id="count">در حال بارگذاری...</span>
+  </div>
+  <div class="grid" id="apps">
+    <div class="panel">در حال دریافت برنامه‌ها...</div>
+  </div>
+
+  <section class="panel hidden" id="developerPanel">
+    <h2>انتشار برنامه جدید</h2>
+    <p class="muted">برنامه شما پس از بررسی مدیر در فروشگاه نمایش داده می‌شود. لینک فایل باید HTTPS باشد.</p>
+    <form id="appForm">
+      <input name="name" placeholder="نام برنامه" required maxlength="100">
+      <input name="package_name" placeholder="شناسه برنامه، مثال: com.example.app" required>
+      <input name="category" placeholder="دسته‌بندی، مثال: Education" required>
+      <input name="version" placeholder="نسخه، مثال: 1.0.0" required>
+      <textarea name="description" placeholder="توضیحات برنامه" required rows="4"></textarea>
+      <input name="icon_url" type="url" placeholder="لینک تصویر آیکون (اختیاری)">
+      <input name="file_url" type="url" placeholder="لینک دانلود APK (HTTPS)" required>
+      <input name="price" type="number" min="0" step="0.01" value="0" placeholder="قیمت به دالر؛ صفر یعنی رایگان">
+      <button type="submit">ارسال برای بررسی</button>
+    </form>
+    <div id="submitMessage"></div>
+  </section>
+
+  <section class="panel hidden" id="myAppsPanel">
+    <h2>برنامه‌های من</h2>
+    <div id="myApps"></div>
+  </section>
+
+  <section class="panel hidden" id="adminPanel">
+    <h2>مدیریت برنامه‌ها</h2>
+    <div id="pendingApps"></div>
+  </section>
+</main>
+
+<footer>
+  Afghan App Store © 2026 — بازار جهانی برنامه‌ها
+  <p class="muted">نسخه اولیه؛ پرداخت برنامه‌های پولی هنوز فعال نیست.</p>
+</footer>
+
+<div class="modal hidden" id="authModal">
+  <div class="modal-content">
+    <button class="close" onclick="closeModal('authModal')">بستن ×</button>
+    <h2>حساب کاربری</h2>
+    <div id="authMessage"></div>
+    <form id="authForm">
+      <input name="name" id="authName" placeholder="نام شما (برای ثبت‌نام)">
+      <input name="email" type="email" placeholder="ایمیل" required>
+      <input name="password" type="password" placeholder="رمز عبور؛ حداقل ۸ حرف" required minlength="8">
+      <div style="display:flex;gap:8px">
+        <button type="button" onclick="auth('register')">ثبت‌نام</button>
+        <button type="button" class="secondary" onclick="auth('login')">ورود</button>
+      </div>
+    </form>
+    <button class="secondary" style="margin-top:12px" onclick="logout()">خروج از حساب</button>
+  </div>
+</div>
+
+<script>
+const API = "/api";
+let token = localStorage.getItem("aas_token") || "";
+let category = "";
+
+function openModal(id){document.getElementById(id).classList.remove("hidden")}
+function closeModal(id){document.getElementById(id).classList.add("hidden")}
+function message(id,text){document.getElementById(id).textContent=text}
+
+async function request(path, options={}) {
+  const headers = {"Content-Type":"application/json",...(options.headers||{})};
+  if(token) headers.Authorization="Bearer "+token;
+  const response=await fetch(API+path,{...options,headers});
+  const data=await response.json().catch(()=>({error:"پاسخ سرور قابل خواندن نیست."}));
+  if(!response.ok) throw new Error(data.error||"خطا در ارتباط با سرور");
+  return data;
+}
+
+async function auth(mode){
+  const form=document.getElementById("authForm");
+  const data=Object.fromEntries(new FormData(form).entries());
+  if(mode==="register" && !data.name.trim()){
+    message("authMessage","لطفاً نام خود را وارد کنید.");return;
+  }
+  try{
+    const result=await request("/"+mode,{method:"POST",body:JSON.stringify(data)});
+    token=result.token;
+    localStorage.setItem("aas_token",token);
+    message("authMessage","ورود موفق بود.");
+    closeModal("authModal");
+    showDeveloper();
+    loadApps();
+  }catch(e){message("authMessage",e.message)}
+}
+
+function logout(){
+  token="";
+  localStorage.removeItem("aas_token");
+  closeModal("authModal");
+  document.getElementById("developerPanel").classList.add("hidden");
+  document.getElementById("myAppsPanel").classList.add("hidden");
+  document.getElementById("adminPanel").classList.add("hidden");
+}
+
+async function showDeveloper(){
+  if(!token){openModal("authModal");return}
+  try{
+    const me=await request("/me");
+    document.getElementById("developerPanel").classList.remove("hidden");
+    document.getElementById("myAppsPanel").classList.remove("hidden");
+    if(me.user.role==="admin") document.getElementById("adminPanel").classList.remove("hidden");
+    loadMyApps();
+    if(me.user.role==="admin") loadPending();
+    document.getElementById("developerPanel").scrollIntoView({behavior:"smooth"});
+  }catch(e){alert(e.message);logout()}
+}
+
+function setCategory(value){
+  category=value;
+  document.querySelectorAll(".categories button").forEach(b=>b.classList.remove("active"));
+  event.target.classList.add("active");
+  loadApps();
+}
+
+async function loadApps(){
+  const q=document.getElementById("search").value.trim();
+  const params=new URLSearchParams();
+  if(q)params.set("q",q);
+  if(category)params.set("category",category);
+  try{
+    const result=await request("/apps?"+params.toString());
+    const apps=result.apps||[];
+    document.getElementById("count").textContent=apps.length+" برنامه";
+    const box=document.getElementById("apps");
+    if(!apps.length){box.innerHTML='<div class="panel">هنوز برنامه‌ای ثبت نشده است.</div>';return}
+    box.innerHTML=apps.map(app=>{
+      const icon=app.icon_url
+        ? `<img src="${escapeHtml(app.icon_url)}" alt="" style="width:65px;height:65px;border-radius:15px;object-fit:cover">`
+        : "📱";
+      return `<article class="app">
+        <div class="app-icon">${icon}</div>
+        <h3>${escapeHtml(app.name)}</h3>
+        <div class="muted">${escapeHtml(app.category)} · نسخه ${escapeHtml(app.version)}</div>
+        <p class="muted">${escapeHtml(app.description).slice(0,150)}</p>
+        <div class="price">${Number(app.price)===0?"رایگان":escapeHtml(app.currency)+" "+escapeHtml(app.price)}</div>
+        <button onclick="downloadApp(${Number(app.id)})">${Number(app.price)===0?"دانلود برنامه":"مشاهده برنامه پولی"}</button>
+      </article>`;
+    }).join("");
+  }catch(e){
+    document.getElementById("count").textContent="خطا";
+    document.getElementById("apps").innerHTML='<div class="panel">ارتباط با سرور برقرار نشد. لطفاً بعداً تلاش کنید.</div>';
+  }
+}
+
+async function downloadApp(id){
+  if(!token){openModal("authModal");return}
+  try{
+    const result=await request("/apps/"+id+"/download",{method:"POST",body:"{}"});
+    if(result.download_url)window.open(result.download_url,"_blank","noopener");
+    else alert("لینک دانلود دریافت نشد.");
+  }catch(e){
+    alert(e.message);
+  }
+}
+
+document.getElementById("appForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const data=Object.fromEntries(new FormData(e.target).entries());
+  data.price=Number(data.price||0);
+  try{
+    await request("/developer/app",{method:"POST",body:JSON.stringify(data)});
+    message("submitMessage","برنامه با موفقیت برای بررسی ارسال شد.");
+    e.target.reset();
+    loadMyApps();
+  }catch(err){message("submitMessage",err.message)}
+});
+
+async function loadMyApps(){
+  try{
+    const result=await request("/developer/apps");
+    const apps=result.apps||[];
+    document.getElementById("myApps").innerHTML=apps.length
+      ? apps.map(a=>`<p>${escapeHtml(a.name)} — وضعیت: ${escapeHtml(a.status)}</p>`).join("")
+      : "هنوز برنامه‌ای ثبت نکرده‌اید.";
+  }catch(e){document.getElementById("myApps").textContent=e.message}
+}
+
+async function loadPending(){
+  try{
+    const result=await request("/admin/pending");
+    document.getElementById("pendingApps").innerHTML=(result.apps||[]).map(a=>`
+      <div class="panel">
+        <b>${escapeHtml(a.name)}</b>
+        <p class="muted">${escapeHtml(a.description)}</p>
+        <button onclick="reviewApp(${Number(a.id)},'approved')">تأیید</button>
+        <button class="secondary" onclick="reviewApp(${Number(a.id)},'rejected')">رد</button>
+      </div>`).join("")||"برنامه در انتظار بررسی وجود ندارد.";
+  }catch(e){document.getElementById("pendingApps").textContent=e.message}
+}
+
+async function reviewApp(id,status){
+  try{
+    await request("/admin/review",{method:"POST",body:JSON.stringify({app_id:id,status})});
+    loadPending();
+    loadApps();
+  }catch(e){alert(e.message)}
+}
+
+function escapeHtml(value){
+  return String(value??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+loadApps();
+</script>
+</body>
+</html>
