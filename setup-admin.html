@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ساخت مدیر افغان اپ‌استور</title>
+<style>
+body{font-family:Tahoma;background:#f1f4f9;padding:20px}
+main{max-width:420px;margin:30px auto;background:white;padding:22px;border-radius:15px}
+input,button{width:100%;padding:13px;margin:8px 0;box-sizing:border-box;border:1px solid #ddd;border-radius:8px}
+button{background:#1769e0;color:white;font-weight:bold}
+#result{white-space:pre-wrap;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<main>
+<h2>ساخت حساب مدیر</h2>
+<form id="form">
+<input name="secret" type="password" placeholder="ADMIN_SETUP_SECRET" required>
+<input name="name" placeholder="نام مدیر" required>
+<input name="email" type="email" placeholder="ایمیل مدیر" required>
+<input name="password" type="password" minlength="10" placeholder="رمز عبور حداقل ۱۰ حرف" required>
+<button type="submit">ساخت حساب مدیر</button>
+</form>
+<p id="result"></p>
+</main>
+<script>
+document.getElementById("form").addEventListener("submit",async function(e){
+e.preventDefault();
+const f=new FormData(this);
+const data=Object.fromEntries(f.entries());
+const result=document.getElementById("result");
+result.textContent="در حال ساخت حساب...";
+try{
+const r=await fetch("/api/setup-admin",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
+const j=await r.json();
+result.textContent=JSON.stringify(j,null,2);
+if(r.ok)this.reset();
+}catch(err){
+result.textContent="خطا در اتصال: "+err.message;
+}
+});
+</script>
+</body>
+</html>
