@@ -58,8 +58,13 @@ export default async function handler(req, res) {
   if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
     return send(res, 500, { error: "JWT_SECRET باید حداقل ۳۲ حرف باشد." });
   }
+const routePath = Array.isArray(req.query?.path)
+  ? req.query.path.join("/")
+  : String(req.query?.path || "");
 
-  const path = (req.url || "/").split("?")[0].replace(/\/+$/, "");
+const path = routePath
+  ? (routePath.startsWith("/api/") ? routePath : "/api/" + routePath).replace(/\/+$/, "")
+  : (req.url || "/").split("?")[0].replace(/\/+$/, "");
   const body = bodyOf(req);
 
   try {
